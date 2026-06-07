@@ -1,7 +1,6 @@
 # See https://docs.github.com/en/get-started/getting-started-with-git/ignoring-files for more about ignoring files.
 
 # compiled output
-dist
 tmp
 out-tsc
 *.tsbuildinfo
@@ -47,3 +46,6 @@ Thumbs.db
 # Replit
 .cache/
 .local/
+
+# PM2 config with secrets (copy from ecosystem.config.js.example)
+ecosystem.config.js

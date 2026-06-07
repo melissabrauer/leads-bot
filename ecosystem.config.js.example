@@ -1,0 +1,21 @@
+// Скопіюйте цей файл: cp ecosystem.config.js.example ecosystem.config.js
+// Заповніть значення нижче і НЕ комітьте ecosystem.config.js (він у .gitignore)
+
+module.exports = {
+  apps: [
+    {
+      name: 'leads-bot',
+      script: './artifacts/api-server/dist/index.mjs',
+      interpreter: 'node',
+      cwd: '/root/leads-bot',
+      env: {
+        NODE_ENV: 'production',
+        PORT: 3002,
+        TELEGRAM_BOT_TOKEN: 'ЗАМІНІТЬ_ТУТ',
+        DATABASE_URL: 'postgresql://leadsbot:LeadsBot2024_secure@localhost:5432/leads_bot',
+        ADMIN_IDS: '5483515306',
+        CRYPTO_PAY_API_TOKEN: 'ЗАМІНІТЬ_ТУТ',
+      },
+    },
+  ],
+};
