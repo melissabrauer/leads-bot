@@ -8,3 +8,4 @@ export * from "./recruiterEarnings";
 export * from "./withdrawalRequests";
 export * from "./transactions";
 export * from "./recruiterApplications";
+export * from "./botSessions";

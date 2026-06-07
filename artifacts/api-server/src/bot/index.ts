@@ -1,4 +1,5 @@
 import { Telegraf, session } from "telegraf";
+import { createPgSessionStore } from "./sessionStore";
 import { message } from "telegraf/filters";
 import { tr, type Lang } from "./i18n";
 import { db } from "@workspace/db";
@@ -96,7 +97,7 @@ export function createBot() {
 
   const bot = new Telegraf<BotContext>(token);
 
-  bot.use(session({ defaultSession: (): SessionData => ({}) }));
+  bot.use(session({ store: createPgSessionStore(), defaultSession: (): SessionData => ({}) }));
 
   bot.catch((err, ctx) => {
     logger.error({ err, update: ctx.update }, "Bot update error");
