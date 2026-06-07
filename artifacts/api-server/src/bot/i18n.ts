@@ -37,9 +37,9 @@ const t = {
     btnWithdraw: "💸 Вивести баланс",
     btnMyTransactions: "📊 Мої транзакції",
 
-    chooseLanguageFilter: "🌐 Виберіть мови (можна кілька):\n\n💡 <i>Натисніть на мову — вона позначиться ✅. Можна обрати декілька. Потім натисніть «🟢 Показати обрані дески».</i>",
-    showAll: "🔵 Показати всі дески",
-    showSelected: "🟢 Показати обрані дески",
+    chooseLanguageFilter: "🌐 Виберіть мови (можна кілька):\n\n💡 <i>Натисніть на мову — вона позначиться ✅. Можна обрати декілька. Потім натисніть зелену кнопку «Показати обрані дески».</i>",
+    showAll: "🟦🟦🟦 Показати всі дески 🟦🟦🟦",
+    showSelected: "🟩🟩🟩 Показати обрані дески 🟩🟩🟩",
     selectAtLeastOne: "⚠️ Оберіть хоча б одну мову або натисніть «🔵 Показати всі дески».",
 
     noLeads: "❌ Ліди не знайдені.",
@@ -105,6 +105,7 @@ const t = {
     topupRequestSent: "✅ Запит на поповнення надіслано. Очікуйте підтвердження адміністратора.",
     topupCryptoSuccess: (amount: string) => `✅ Баланс поповнено на <b>$${amount} USDT</b>!`,
 
+    leadBrowseWarning: "⚠️ <b>Важливо перед переглядом</b>\n\nЯкщо у інформації про ліда є неправдива інформація, контакт ліда не є коректним або юзернейм ліда є застарілим — ви можете натиснути кнопку <b>«⚠️ Невалідний лід»</b> і зробити запит на повернення коштів.\n\nАдміністрація завжди старається надавати вам чесну і правильну інформацію, але людський фактор не може бути виключенням. Ваш запит обов'язково буде розглянутим та питання повернення коштів буде вирішеним.\n\n🙏 Дякуємо, приємного користування!",
     refundInvalidLead: "⚠️ Невалідний лід",
     refundPending: "⏳ На розгляді",
     refundApproved: "✅ Повернення схвалено",
@@ -226,6 +227,33 @@ const t = {
       `❌ <b>Запит на вивід відхилено</b>\n\n💵 Сума $${amount} USDT повернена на ваш баланс.`,
     withdrawalCancelled: "❌ Вивід скасовано.",
 
+    topupApproved: (amount: string, balance: string) =>
+      `✅ <b>Баланс поповнено!</b>\n\n💰 Зараховано: <b>+$${amount}</b>\n💳 Поточний баланс: <b>$${balance}</b>`,
+    topupRejected: (amount: string) =>
+      `❌ <b>Запит на поповнення відхилено</b>\n\n💰 Сума: $${amount}\n\nЗверніться до підтримки для уточнення деталей.`,
+    refundApprovedNotify: (leadName: string, price: string, balance: string) =>
+      `✅ <b>Повернення коштів схвалено!</b>\n\n🎯 Лід: ${leadName}\n💰 Повернено: <b>$${price}</b>\n💳 Поточний баланс: <b>$${balance}</b>`,
+    refundRejectedNotify: (leadName: string) =>
+      `❌ <b>Запит на повернення відхилено</b>\n\n🎯 Лід: ${leadName}\n\nЗверніться до підтримки для уточнення деталей.`,
+    recruiterGranted: "✅ <b>Вітаємо! Вам надано права рекрутера.</b>\n\nТепер ви можете подавати ліди та заробляти 50% від кожного продажу.\n\nВведіть /menu щоб оновити меню.",
+    recruiterRevoked: "ℹ️ <b>Ваші права рекрутера відкликано.</b>\n\nЗверніться до підтримки для уточнення деталей.",
+    recruiterRefundNotify: (leadName: string, earning: string) =>
+      `❌ <b>Клієнт отримав повернення за ваш лід</b>\n\n🎯 Лід: ${leadName}\n💸 Знято з очікування: <b>$${earning}</b>`,
+    leadPurchasedToast: (balance: string) => `✅ Куплено! Баланс: $${balance}`,
+    fourteenDays: "14 днів",
+    txTopupLabel: "💳 Поповнення",
+    txMethodAdmin: "👤 Адміністратор",
+    txTopupAdminLabel: "👤 Поповнення адміністратором",
+    txRefundLabel: "🔄 Повернення за лід",
+    txLeadPurchaseLabel: "Купівля ліда",
+    txLeadPurchaseFullLabel: "🛒 Купівля ліда",
+    txRecruiterEarningLabel: "💰 Заробіток",
+    txRecruiterRefundLabel: "❌ Списання (повернення)",
+    txRecruiterVestedLabel: "✅ Нараховано з очікування",
+    txWithdrawalLabel: "💸 Вивід",
+    txWithdrawalRejectedLabel: "↩️ Вивід відхилено",
+    recruiterRulesText: `🤝 <b>Продаж лідів — правила участі</b>\n\nПерш ніж подати заявку, ознайомтесь з вимогами:\n\n📌 <b>Вимоги до ліда:</b>\n• Лід має відповідати опису та формату платформи\n• Контакти ліда мають бути <b>актуальними</b> на момент подачі\n• Лід не повинен бути раніше проданий або переданий іншим особам\n\n💰 <b>Ціноутворення:</b>\n• Ціна ліда формується <b>автоматично системою</b>\n• Можливості встановити власну ціну немає\n• Актуальні ціни можна переглянути у розділах з відповідними лідами\n\n💵 <b>Винагорода:</b>\n• Ви отримуєте <b>50%</b> від ціни продажу ліда\n• Кошти зараховуються на <b>заморожений баланс</b> на 14 днів\n• Після 14 днів сума переходить на основний баланс\n\n⛔ <b>За спробу продати неякісний або неактуальний лід — <u>бан без можливості реабілітації</u></b>\n\nЯкщо ви згодні з правилами — натисніть кнопку нижче:`,
+
     withdrawal: (balance: string, fee: string) =>
       `💸 <b>Вивід коштів</b>\n\nВаш баланс: <b>$${balance}</b>\nКомісія мережі: <b>$${fee} USDT TRC20</b>\n\nВведіть суму для виводу:`,
     withdrawalMin: (min: string) => `❌ Мінімальна сума виводу: $${min}`,
@@ -301,9 +329,9 @@ const t = {
     btnWithdraw: "💸 Вывести баланс",
     btnMyTransactions: "📊 Мои транзакции",
 
-    chooseLanguageFilter: "🌐 Выберите языки (можно несколько):\n\n💡 <i>Нажмите на язык — он отметится ✅. Можно выбрать несколько. Затем нажмите «🟢 Показать выбранные деска».</i>",
-    showAll: "🔵 Показать все деска",
-    showSelected: "🟢 Показать выбранные деска",
+    chooseLanguageFilter: "🌐 Выберите языки (можно несколько):\n\n💡 <i>Нажмите на язык — он отметится ✅. Можно выбрать несколько. Затем нажмите зелёную кнопку «Показать выбранные деска».</i>",
+    showAll: "🟦🟦🟦 Показать все деска 🟦🟦🟦",
+    showSelected: "🟩🟩🟩 Показать выбранные деска 🟩🟩🟩",
     selectAtLeastOne: "⚠️ Выберите хотя бы один язык или нажмите «🔵 Показать все деска».",
 
     noLeads: "❌ Лиды не найдены.",
@@ -369,6 +397,7 @@ const t = {
     topupRequestSent: "✅ Запрос на пополнение отправлен. Ожидайте подтверждения администратора.",
     topupCryptoSuccess: (amount: string) => `✅ Баланс пополнен на <b>$${amount} USDT</b>!`,
 
+    leadBrowseWarning: "⚠️ <b>Важно перед просмотром</b>\n\nЕсли в информации о лиде есть недостоверные данные, контакт лида некорректен или юзернейм лида устарел — вы можете нажать кнопку <b>«⚠️ Невалидный лид»</b> и отправить запрос на возврат средств.\n\nАдминистрация всегда старается предоставлять честную и точную информацию, но человеческий фактор не может быть исключением. Ваш запрос обязательно будет рассмотрен и вопрос возврата средств будет решён.\n\n🙏 Спасибо, приятного пользования!",
     refundInvalidLead: "⚠️ Невалидный лид",
     refundPending: "⏳ На рассмотрении",
     refundApproved: "✅ Возврат одобрен",
@@ -484,11 +513,38 @@ const t = {
     leadDeletedNoMore: "✅ Лід видалено. Більше немає лідів.",
 
     leadRejectedNotify: (name: string) =>
-      `❌ <b>Ваш лід відхилено.</b>\n\n👤 ${name}\n\nЗверніться до адміністратора для уточнення деталей.`,
-    recruiterRejected: "❌ <b>Вашу заявку на рекрутера відхилено.</b>\n\nЯкщо маєте питання — зверніться до підтримки.",
+      `❌ <b>Ваш лид отклонён.</b>\n\n👤 ${name}\n\nОбратитесь к администратору для уточнения деталей.`,
+    recruiterRejected: "❌ <b>Ваша заявка на рекрутера отклонена.</b>\n\nЕсли есть вопросы — обратитесь в поддержку.",
     withdrawalRejectedNotify: (amount: string) =>
-      `❌ <b>Запит на вивід відхилено</b>\n\n💵 Сума $${amount} USDT повернена на ваш баланс.`,
-    withdrawalCancelled: "❌ Вивід скасовано.",
+      `❌ <b>Запрос на вывод отклонён</b>\n\n💵 Сумма $${amount} USDT возвращена на ваш баланс.`,
+    withdrawalCancelled: "❌ Вывод отменён.",
+
+    topupApproved: (amount: string, balance: string) =>
+      `✅ <b>Баланс пополнен!</b>\n\n💰 Зачислено: <b>+$${amount}</b>\n💳 Текущий баланс: <b>$${balance}</b>`,
+    topupRejected: (amount: string) =>
+      `❌ <b>Запрос на пополнение отклонён</b>\n\n💰 Сумма: $${amount}\n\nОбратитесь в поддержку для уточнения деталей.`,
+    refundApprovedNotify: (leadName: string, price: string, balance: string) =>
+      `✅ <b>Возврат средств одобрен!</b>\n\n🎯 Лид: ${leadName}\n💰 Возвращено: <b>$${price}</b>\n💳 Текущий баланс: <b>$${balance}</b>`,
+    refundRejectedNotify: (leadName: string) =>
+      `❌ <b>Запрос на возврат отклонён</b>\n\n🎯 Лид: ${leadName}\n\nОбратитесь в поддержку для уточнения деталей.`,
+    recruiterGranted: "✅ <b>Поздравляем! Вам выданы права рекрутера.</b>\n\nТеперь вы можете подавать лиды и зарабатывать 50% от каждой продажи.\n\nВведите /menu чтобы обновить меню.",
+    recruiterRevoked: "ℹ️ <b>Ваши права рекрутера отозваны.</b>\n\nОбратитесь в поддержку для уточнения деталей.",
+    recruiterRefundNotify: (leadName: string, earning: string) =>
+      `❌ <b>Клиент получил возврат за ваш лид</b>\n\n🎯 Лид: ${leadName}\n💸 Снято с ожидания: <b>$${earning}</b>`,
+    leadPurchasedToast: (balance: string) => `✅ Куплено! Баланс: $${balance}`,
+    fourteenDays: "14 дней",
+    txTopupLabel: "💳 Пополнение",
+    txMethodAdmin: "👤 Администратор",
+    txTopupAdminLabel: "👤 Пополнение администратором",
+    txRefundLabel: "🔄 Возврат за лид",
+    txLeadPurchaseLabel: "Покупка лида",
+    txLeadPurchaseFullLabel: "🛒 Покупка лида",
+    txRecruiterEarningLabel: "💰 Заработок",
+    txRecruiterRefundLabel: "❌ Списание (возврат)",
+    txRecruiterVestedLabel: "✅ Начислено из ожидания",
+    txWithdrawalLabel: "💸 Вывод",
+    txWithdrawalRejectedLabel: "↩️ Вывод отклонён",
+    recruiterRulesText: `🤝 <b>Продажа лидов — правила участия</b>\n\nПрежде чем подать заявку, ознакомьтесь с требованиями:\n\n📌 <b>Требования к лиду:</b>\n• Лид должен соответствовать описанию и формату платформы\n• Контакты лида должны быть <b>актуальными</b> на момент подачи\n• Лид не должен быть ранее продан или передан другим лицам\n\n💰 <b>Ценообразование:</b>\n• Цена лида формируется <b>автоматически системой</b>\n• Возможности установить собственную цену нет\n• Актуальные цены можно просмотреть в разделах с соответствующими лидами\n\n💵 <b>Вознаграждение:</b>\n• Вы получаете <b>50%</b> от цены продажи лида\n• Средства зачисляются на <b>замороженный баланс</b> на 14 дней\n• После 14 дней сумма переходит на основной баланс\n\n⛔ <b>За попытку продать некачественный или неактуальный лид — <u>бан без возможности реабилитации</u></b>\n\nЕсли вы согласны с правилами — нажмите кнопку ниже:`,
 
     withdrawal: (balance: string, fee: string) =>
       `💸 <b>Вывод средств</b>\n\nВаш баланс: <b>$${balance}</b>\nКомиссия сети: <b>$${fee} USDT TRC20</b>\n\nВведите сумму для вывода:`,
@@ -565,9 +621,9 @@ const t = {
     btnWithdraw: "💸 Withdraw Balance",
     btnMyTransactions: "📊 My Transactions",
 
-    chooseLanguageFilter: "🌐 Select languages (multiple allowed):\n\n💡 <i>Tap a language to select it ✅. You can pick several. Then tap «🟢 Show selected desks».</i>",
-    showAll: "🔵 Show all desks",
-    showSelected: "🟢 Show selected desks",
+    chooseLanguageFilter: "🌐 Select languages (multiple allowed):\n\n💡 <i>Tap a language to select it ✅. You can pick several. Then tap the green «Show selected desks» button.</i>",
+    showAll: "🟦🟦🟦 Show all desks 🟦🟦🟦",
+    showSelected: "🟩🟩🟩 Show selected desks 🟩🟩🟩",
     selectAtLeastOne: "⚠️ Please select at least one language or press «🔵 Show all desks».",
 
     noLeads: "❌ No leads found.",
@@ -633,6 +689,7 @@ const t = {
     topupRequestSent: "✅ Top-up request sent. Awaiting administrator confirmation.",
     topupCryptoSuccess: (amount: string) => `✅ Balance topped up by <b>$${amount} USDT</b>!`,
 
+    leadBrowseWarning: "⚠️ <b>Important before browsing</b>\n\nIf a lead contains false information, an incorrect contact, or an outdated username — you can tap the <b>«⚠️ Invalid lead»</b> button to submit a refund request.\n\nOur team always strives to provide accurate and honest information, but human error cannot be ruled out. Your request will be reviewed and the refund matter will be resolved.\n\n🙏 Thank you and enjoy browsing!",
     refundInvalidLead: "⚠️ Invalid lead",
     refundPending: "⏳ Under review",
     refundApproved: "✅ Refund approved",
@@ -753,6 +810,33 @@ const t = {
     withdrawalRejectedNotify: (amount: string) =>
       `❌ <b>Withdrawal request rejected</b>\n\n💵 Amount $${amount} USDT has been returned to your balance.`,
     withdrawalCancelled: "❌ Withdrawal cancelled.",
+
+    topupApproved: (amount: string, balance: string) =>
+      `✅ <b>Balance topped up!</b>\n\n💰 Credited: <b>+$${amount}</b>\n💳 Current balance: <b>$${balance}</b>`,
+    topupRejected: (amount: string) =>
+      `❌ <b>Top-up request rejected</b>\n\n💰 Amount: $${amount}\n\nContact support for details.`,
+    refundApprovedNotify: (leadName: string, price: string, balance: string) =>
+      `✅ <b>Refund approved!</b>\n\n🎯 Lead: ${leadName}\n💰 Refunded: <b>$${price}</b>\n💳 Current balance: <b>$${balance}</b>`,
+    refundRejectedNotify: (leadName: string) =>
+      `❌ <b>Refund request rejected</b>\n\n🎯 Lead: ${leadName}\n\nContact support for details.`,
+    recruiterGranted: "✅ <b>Congratulations! You have been granted recruiter rights.</b>\n\nYou can now submit leads and earn 50% from every sale.\n\nType /menu to refresh the menu.",
+    recruiterRevoked: "ℹ️ <b>Your recruiter rights have been revoked.</b>\n\nContact support for details.",
+    recruiterRefundNotify: (leadName: string, earning: string) =>
+      `❌ <b>A client received a refund for your lead</b>\n\n🎯 Lead: ${leadName}\n💸 Deducted from pending: <b>$${earning}</b>`,
+    leadPurchasedToast: (balance: string) => `✅ Purchased! Balance: $${balance}`,
+    fourteenDays: "14 days",
+    txTopupLabel: "💳 Top-up",
+    txMethodAdmin: "👤 Administrator",
+    txTopupAdminLabel: "👤 Admin top-up",
+    txRefundLabel: "🔄 Lead refund",
+    txLeadPurchaseLabel: "Lead purchase",
+    txLeadPurchaseFullLabel: "🛒 Lead purchase",
+    txRecruiterEarningLabel: "💰 Earnings",
+    txRecruiterRefundLabel: "❌ Deduction (refund)",
+    txRecruiterVestedLabel: "✅ Vested from pending",
+    txWithdrawalLabel: "💸 Withdrawal",
+    txWithdrawalRejectedLabel: "↩️ Withdrawal rejected",
+    recruiterRulesText: `🤝 <b>Lead Sales — Terms of Participation</b>\n\nBefore submitting your application, please read the requirements:\n\n📌 <b>Lead requirements:</b>\n• The lead must match the platform's description and format\n• The lead's contacts must be <b>up-to-date</b> at the time of submission\n• The lead must not have been previously sold or shared with others\n\n💰 <b>Pricing:</b>\n• Lead prices are set <b>automatically by the system</b>\n• You cannot set your own price\n• Current prices can be viewed in the respective lead sections\n\n💵 <b>Reward:</b>\n• You earn <b>50%</b> of the lead's sale price\n• Funds are credited to a <b>frozen balance</b> for 14 days\n• After 14 days, the amount is moved to your main balance\n\n⛔ <b>Attempting to sell a low-quality or outdated lead results in a <u>permanent ban</u></b>\n\nIf you agree to the terms — press the button below:`,
 
     withdrawal: (balance: string, fee: string) =>
       `💸 <b>Withdrawal</b>\n\nYour balance: <b>$${balance}</b>\nNetwork fee: <b>$${fee} USDT TRC20</b>\n\nEnter withdrawal amount:`,

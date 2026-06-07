@@ -24,7 +24,7 @@ import path from "path";
 const QR_WALLET_PATH = path.join(process.cwd(), "assets/qr-wallet.jpg");
 
 const ADMIN_IDS = (process.env.ADMIN_IDS || "").split(",").map((id) => parseInt(id.trim())).filter(Boolean);
-const WITHDRAWAL_FEE = 1; // USDT TRC20 network fee
+const WITHDRAWAL_FEE = 5; // USDT TRC20 network fee
 
 const LANGUAGES: { label: string; keywords: string[] }[] = [
   { label: "🇬🇧 Англійська",    keywords: ["english", "англ"] },
@@ -322,6 +322,9 @@ export function createBot() {
     const type = ctx.match[1] === "h" ? "hot" : "cold";
     await ctx.answerCbQuery();
     ctx.session.selectedLanguages = [];
+    const user = await getUser(ctx.from!.id);
+    const t = tr(user?.lang);
+    await ctx.reply(t.leadBrowseWarning, { parse_mode: "HTML" });
     await initLeadBrowse(ctx, type, []);
   });
 
@@ -337,6 +340,9 @@ export function createBot() {
       return;
     }
 
+    const user = await getUser(ctx.from!.id);
+    const t = tr(user?.lang);
+    await ctx.reply(t.leadBrowseWarning, { parse_mode: "HTML" });
     await initLeadBrowse(ctx, type, selectedLangs);
   });
 
@@ -892,7 +898,7 @@ export function createBot() {
         try {
           await bot.telegram.sendMessage(
             rec.telegramId,
-            `🎉 <b>Ваш лід куплено!</b>\n\n👤 ${lead.fullName}\n💰 Ваш заробіток: <b>$${earning.toFixed(2)}</b>\n\n⏳ Кошти заморожені до <b>${unlockDate}</b> (14 днів)`,
+            tr(rec.lang).leadBought(lead.fullName, earning.toFixed(2), unlockDate),
             { parse_mode: "HTML" },
           );
         } catch {}
@@ -900,7 +906,7 @@ export function createBot() {
     }
 
     const updatedUser = await getUser(ctx.from!.id);
-    await ctx.answerCbQuery(`✅ Куплено! Баланс: $${parseFloat(updatedUser?.balance || "0").toFixed(2)}`);
+    await ctx.answerCbQuery(tr(updatedUser?.lang).leadPurchasedToast(parseFloat(updatedUser?.balance || "0").toFixed(2)));
     // Refresh page — lead is now purchased, so full info + "Невалідний лід" will appear
     await showLeadPage(ctx, ctx.session.leadIndex ?? 0, true);
   });
@@ -986,7 +992,7 @@ export function createBot() {
 
     let text = `${t.myAccount}\n\n${t.balance}: <b>$${balance}</b>`;
     if (user.isRecruiter) {
-      text += `\n${t.pendingBalance}: <b>$${pendingBalance}</b> <i>(14 ${tr("uk").pendingBalance === t.pendingBalance ? "днів" : "days"})</i>`;
+      text += `\n${t.pendingBalance}: <b>$${pendingBalance}</b> <i>(${t.fourteenDays})</i>`;
     }
     text += `\n${t.purchasedLeads}: <b>${bought}</b>`;
     if (user.isRecruiter) {
@@ -997,7 +1003,7 @@ export function createBot() {
       [{ text: t.btnTopup, callback_data: "topup_start" }],
     ];
     if (user.isRecruiter) {
-      inlineKeyboard.push([{ text: "💸 Вивести баланс", callback_data: "withdraw_start" }]);
+      inlineKeyboard.push([{ text: t.btnWithdraw, callback_data: "withdraw_start" }]);
     }
     inlineKeyboard.push([{ text: t.btnViewPurchased, callback_data: "my_leads" }]);
     inlineKeyboard.push([{ text: t.btnTransactionHistory, callback_data: "my_transactions" }]);
@@ -1121,7 +1127,8 @@ export function createBot() {
   });
 
   // ─── SHARED: BUILD TX ENTRIES ────────────────────────────────────────────────
-  async function buildTxEntries(userId: number): Promise<{ date: Date; text: string }[]> {
+  async function buildTxEntries(userId: number, lang?: string | null): Promise<{ date: Date; text: string }[]> {
+    const tTx = tr(lang);
     const since = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
     const [topups, buys, allTxs] = await Promise.all([
       db.select().from(topupRequestsTable)
@@ -1141,7 +1148,7 @@ export function createBot() {
 
     for (const tx of topups) {
       const status = tx.status === "approved" ? "✅" : tx.status === "rejected" ? "❌" : "⏳";
-      let method = "👤 Адміністратор";
+      let method: string = tTx.txMethodAdmin;
       let hashLine = "";
       if (tx.invoiceId) {
         method = "💎 Crypto Bot";
@@ -1153,25 +1160,25 @@ export function createBot() {
       }
       entries.push({
         date: tx.createdAt,
-        text: `${status} <b>+$${parseFloat(tx.amount).toFixed(2)}</b> · ${fmtDate(tx.createdAt)}\n💳 Поповнення · ${method}${hashLine}`,
+        text: `${status} <b>+$${parseFloat(tx.amount).toFixed(2)}</b> · ${fmtDate(tx.createdAt)}\n${tTx.txTopupLabel} · ${method}${hashLine}`,
       });
     }
 
     for (const { purchase, lead } of buys) {
       entries.push({
         date: purchase.createdAt,
-        text: `🛒 <b>-$${parseFloat(lead.price || "0").toFixed(2)}</b> · ${fmtDate(purchase.createdAt)}\nКупівля ліда: ${lead.fullName}`,
+        text: `🛒 <b>-$${parseFloat(lead.price || "0").toFixed(2)}</b> · ${fmtDate(purchase.createdAt)}\n${tTx.txLeadPurchaseLabel}: ${lead.fullName}`,
       });
     }
 
     const txTypeLabel: Record<string, string> = {
-      topup: "👤 Поповнення адміністратором",
-      refund: "↩️ Повернення за лід",
-      recruiter_earning: "💰 Заробіток рекрутера",
-      recruiter_refund: "❌ Списання (повернення клієнта)",
-      recruiter_vested: "✅ Нараховано з очікування",
-      withdrawal: "💸 Вивід коштів",
-      withdrawal_rejected: "↩️ Вивід відхилено",
+      topup: tTx.txTopupAdminLabel,
+      refund: tTx.txRefundLabel,
+      recruiter_earning: tTx.txRecruiterEarningLabel,
+      recruiter_refund: tTx.txRecruiterRefundLabel,
+      recruiter_vested: tTx.txRecruiterVestedLabel,
+      withdrawal: tTx.txWithdrawalLabel,
+      withdrawal_rejected: tTx.txWithdrawalRejectedLabel,
     };
     for (const tx of allTxs) {
       const label = txTypeLabel[tx.type];
@@ -1195,7 +1202,7 @@ export function createBot() {
     if (!user) return;
     const t = tr(user.lang);
 
-    const entries = await buildTxEntries(user.id);
+    const entries = await buildTxEntries(user.id, user.lang);
 
     if (entries.length === 0) {
       await ctx.reply(t.noTransactions);
@@ -1604,6 +1611,7 @@ export function createBot() {
   bot.hears((text) => isWantToSellBtn(text), async (ctx) => {
     const user = await getUser(ctx.from!.id);
     if (!user) return;
+    const t = tr(user.lang);
 
     // If already a recruiter — show unified menu
     if (user.isRecruiter) {
@@ -1619,34 +1627,16 @@ export function createBot() {
       .limit(1);
 
     if (existing) {
-      await ctx.reply(
-        "⏳ <b>Ваша заявка вже на розгляді</b>\n\nАдміністратор розгляне її найближчим часом. Можливо, адмін з вами зв'яжеться для уточнення деяких деталей.",
-        { parse_mode: "HTML" },
-      );
+      await ctx.reply(t.recruiterAlreadyApplied, { parse_mode: "HTML" });
       return;
     }
 
     await ctx.reply(
-      `🤝 <b>Продаж лідів — правила участі</b>\n\n` +
-      `Перш ніж подати заявку, ознайомтесь з вимогами:\n\n` +
-      `📌 <b>Вимоги до ліда:</b>\n` +
-      `• Лід має відповідати опису та формату платформи\n` +
-      `• Контакти ліда мають бути <b>актуальними</b> на момент подачі\n` +
-      `• Лід не повинен бути раніше проданий або переданий іншим особам\n\n` +
-      `💰 <b>Ціноутворення:</b>\n` +
-      `• Ціна ліда формується <b>автоматично системою</b>\n` +
-      `• Можливості встановити власну ціну немає\n` +
-      `• Актуальні ціни можна переглянути у розділах з відповідними лідами\n\n` +
-      `💵 <b>Винагорода:</b>\n` +
-      `• Ви отримуєте <b>50%</b> від ціни продажу ліда\n` +
-      `• Кошти зараховуються на <b>заморожений баланс</b> на 14 днів\n` +
-      `• Після 14 днів сума переходить на основний баланс\n\n` +
-      `⛔ <b>За спробу продати неякісний або неактуальний лід — <u>бан без можливості реабілітації</u></b>\n\n` +
-      `Якщо ви згодні з правилами — натисніть кнопку нижче:`,
+      t.recruiterRulesText,
       {
         parse_mode: "HTML",
         reply_markup: {
-          inline_keyboard: [[{ text: "✅ Подати заявку", callback_data: "apply_recruiter" }]],
+          inline_keyboard: [[{ text: t.recruiterAgreeBtn, callback_data: "apply_recruiter" }]],
         },
       },
     );
@@ -1756,7 +1746,7 @@ export function createBot() {
     try {
       await bot.telegram.sendMessage(
         target.telegramId,
-        "✅ <b>Вам надано права рекрутера!</b>\n\nТепер ви можете додавати ліди для публікації.\n\nВведіть /menu для оновлення меню.",
+        tr(target.lang).recruiterGranted,
         { parse_mode: "HTML" },
       );
     } catch {}
@@ -1772,7 +1762,8 @@ export function createBot() {
     try {
       await bot.telegram.sendMessage(
         target.telegramId,
-        "ℹ️ Ваші права рекрутера були відкликані адміністратором.\n\nВведіть /menu для оновлення меню.",
+        tr(target.lang).recruiterRevoked,
+        { parse_mode: "HTML" },
       );
     } catch {}
   });
@@ -1952,10 +1943,7 @@ export function createBot() {
     try {
       await bot.telegram.sendMessage(
         client!.telegramId,
-        `✅ <b>Баланс поповнено!</b>\n\n` +
-        `💰 Зараховано: <b>$${parseFloat(req.amount).toFixed(2)}</b>\n` +
-        `💼 Поточний баланс: <b>$${newBalance}</b>\n\n` +
-        `💳 Спосіб: 🏦 Ручне поповнення USDT (TRC20)${hashLine}`,
+        tr(client!.lang).topupApproved(parseFloat(req.amount).toFixed(2), newBalance) + hashLine,
         { parse_mode: "HTML" },
       );
     } catch {}
@@ -1984,7 +1972,7 @@ export function createBot() {
     try {
       await bot.telegram.sendMessage(
         client!.telegramId,
-        `❌ Ваш запит на поповнення <b>$${req.amount}</b> відхилено.\n\nЗверніться до підтримки.`,
+        tr(client!.lang).topupRejected(parseFloat(req.amount).toFixed(2)),
         { parse_mode: "HTML" },
       );
     } catch {}
@@ -2090,7 +2078,7 @@ export function createBot() {
           try {
             await bot.telegram.sendMessage(
               recUser.telegramId,
-              `❌ <b>Клієнт повернув кошти за ваш лід</b>\n\n👤 ${lead.fullName}\n💸 Знято з очікування: <b>$${earning.amount}</b>`,
+              tr(recUser.lang).recruiterRefundNotify(lead.fullName, earning.amount),
               { parse_mode: "HTML" },
             );
           } catch {}
@@ -2106,7 +2094,7 @@ export function createBot() {
     try {
       await bot.telegram.sendMessage(
         client!.telegramId,
-        `✅ Повернення коштів за лід "${lead?.fullName}" схвалено!\n\n💰 Повернуто: <b>$${lead?.price}</b>\nПоточний баланс: <b>$${newBalance}</b>`,
+        tr(client!.lang).refundApprovedNotify(lead?.fullName || "", lead?.price || "0", newBalance),
         { parse_mode: "HTML" },
       );
     } catch {}
@@ -2137,7 +2125,7 @@ export function createBot() {
     try {
       await bot.telegram.sendMessage(
         client!.telegramId,
-        `❌ Ваш запит на повернення коштів за лід "${lead?.fullName}" відхилено.\n\nЯкщо маєте питання — зверніться до підтримки.`,
+        tr(client!.lang).refundRejectedNotify(lead?.fullName || ""),
         { parse_mode: "HTML" },
       );
     } catch {}
@@ -3166,14 +3154,14 @@ export function createBot() {
     }
 
     const typeLabel: Record<string, string> = {
-      recruiter_earning: "💰 Заробіток",
-      recruiter_refund: "❌ Списання (повернення)",
-      recruiter_vested: "✅ Нараховано з очікування",
-      withdrawal: "💸 Вивід",
-      withdrawal_rejected: "↩️ Вивід відхилено",
-      lead_purchase: "🛒 Купівля ліда",
-      topup: "💳 Поповнення",
-      refund: "🔄 Повернення",
+      recruiter_earning: t.txRecruiterEarningLabel,
+      recruiter_refund: t.txRecruiterRefundLabel,
+      recruiter_vested: t.txRecruiterVestedLabel,
+      withdrawal: t.txWithdrawalLabel,
+      withdrawal_rejected: t.txWithdrawalRejectedLabel,
+      lead_purchase: t.txLeadPurchaseFullLabel,
+      topup: t.txTopupLabel,
+      refund: t.txRefundLabel,
     };
 
     const lines = txs.map((tx) => {
